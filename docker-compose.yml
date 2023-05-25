@@ -1,0 +1,16 @@
+
+version: "3"
+services:
+  velociraptor:
+    container_name: letterbox
+    #image: wlambert/velociraptor
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/app/:rw
+    environment:
+      - TZ=America/Santiago
+    ports:
+      - 5858:5000
+    restart: unless-stopped
