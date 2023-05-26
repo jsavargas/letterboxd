@@ -27,7 +27,7 @@ Connect radarr to letterboxd.com lists
 #### Building it yourself
 
 ```
-git clone https://github.com/jsavargas/letterboxd.gitcd
+git clone https://github.com/jsavargas/letterboxd.git
 cd letterboxd
 docker-compose build 
 docker-compose up -d
