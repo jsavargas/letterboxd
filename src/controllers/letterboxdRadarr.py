@@ -30,7 +30,7 @@ class letterboxdRadarr:
                     movies.append(_movie)
             else: break
 
-        print(f'movie_link  => "{movies}"')
+        #print(f'movie_link  => "{movies}"')
         # Realizar las solicitudes en paralelo
         #{"id":484247,
         # "imdb_id":"tt7040874",
@@ -39,7 +39,30 @@ class letterboxdRadarr:
         # "clean_title":"/film/a-simple-favor/",
         # "adult":false}
 
-        return self.concurrent(movies)
+        return self.concurrent_getDetailsMovie(movies)
+
+    def films(self,username):
+        print('films')
+        watched_movies = []
+        movies = []
+        session = requests.Session()
+
+        count = 0
+        while True:
+            count += 1
+
+            watchlist_url = "https://letterboxd.com/{}/films/page/{}/".format(username, count)
+            search_page = session.get(watchlist_url)
+            search_soup = BeautifulSoup(search_page.content, "html.parser")
+            _movies = search_soup.findAll("div", {"class": "film-poster"})
+            if _movies:
+                for _movie in _movies:
+                    movies.append(_movie)
+            else: break
+
+        #print(f'movie_link  => "{movies}"', flush=True)
+        
+        return self.concurrent_getDetailsMovie(movies)
 
     def getDetailsMovie(self, movie):
         imdb_id = ''
@@ -67,36 +90,12 @@ class letterboxdRadarr:
         if id_match: id_value = id_match.group(1)
         if release_year_match: release_year_value = release_year_match.group(1)
         return {'imdb_id': imdb_id, 
-                'themoviedb': themoviedb, 
-                'id': id_value, 
+                'id': themoviedb, 
                 'title': movie.find('img')['alt'],
                 'release_year': release_year_value, 
                 "clean_title": movie['data-film-slug'] }
     
-    def films(self,username):
-        print('watchlist')
-        watched_movies = []
-        movies = []
-        session = requests.Session()
-
-        count = 0
-        while True:
-            count += 1
-
-            watchlist_url = "https://letterboxd.com/{}/films/page/{}/".format(username, count)
-            search_page = session.get(watchlist_url)
-            search_soup = BeautifulSoup(search_page.content, "html.parser")
-            _movies = search_soup.findAll("div", {"class": "film-poster"})
-            if _movies:
-                for _movie in _movies:
-                    movies.append(_movie)
-            else: break
-
-        print(f'movie_link  => "{movies}"', flush=True)
-        
-        return self.concurrent(movies)
-
-    def concurrent(self, movies):
+    def concurrent_getDetailsMovie(self, movies):
         watched_movies = []
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:

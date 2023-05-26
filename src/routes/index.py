@@ -18,12 +18,11 @@ index = Blueprint("index", __name__)
 
 
 
-@index.route("/<user>/watchlist")
+@index.route("/<user>/watchlist/")
 def watchlist(user=None):
-    print(f" [!] /<user>", flush=True)
+    print(f" [!] watchlist", flush=True)
     movies = []
     try:
-        print(f" [!] /<user>", flush=True)
         newletterboxdRadarr = letterboxdRadarr()
         movies = newletterboxdRadarr.watchlist(user)
     except Exception as e:
@@ -31,12 +30,11 @@ def watchlist(user=None):
     return jsonify(movies)
     return '¡Hola, mundo!'
 
-@index.route("/<user>/films")
+@index.route("/<user>/films/")
 def films(user=None):
-    print(f" [!] /<user>", flush=True)
+    print(f" [!] films", flush=True)
     movies = []
     try:
-        print(f" [!] /<user>", flush=True)
         newletterboxdRadarr = letterboxdRadarr()
         movies = newletterboxdRadarr.films(user)
     except Exception as e:
