@@ -12,7 +12,7 @@ class letterboxdRadarr:
         self.max_workers = 30
 
     def watchlist(self,username):
-        print('watchlist')
+        #print('watchlist')
         watched_movies = []
         movies = []
         session = requests.Session()
@@ -42,7 +42,7 @@ class letterboxdRadarr:
         return self.concurrent_getDetailsMovie(movies)
 
     def films(self,username):
-        print('films')
+        #print('films')
         watched_movies = []
         movies = []
         session = requests.Session()
