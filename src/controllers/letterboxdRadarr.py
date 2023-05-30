@@ -2,33 +2,22 @@ import json
 import os
 import re
 import requests
-from bs4 import BeautifulSoup
 import concurrent.futures
+
+from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter, Retry
 
 class letterboxdRadarr:
 
     def __init__(self):
         self._version = "1.10.0"
         self.max_workers = 30
+        self.num_max_retries = 5
 
     def watchlist(self,username):
         #print('watchlist')
-        watched_movies = []
-        movies = []
-        session = requests.Session()
 
-        count = 0
-        while True:
-            count += 1
-
-            watchlist_url = "https://letterboxd.com/{}/watchlist/page/{}/".format(username, count)
-            search_page = session.get(watchlist_url)
-            search_soup = BeautifulSoup(search_page.content, "html.parser")
-            _movies = search_soup.findAll("div", {"class": "film-poster"})
-            if _movies:
-                for _movie in _movies:
-                    movies.append(_movie)
-            else: break
+        movies = self.search_page(username, 'watchlist')
 
         #print(f'movie_link  => "{movies}"')
         # Realizar las solicitudes en paralelo
@@ -43,15 +32,24 @@ class letterboxdRadarr:
 
     def films(self,username):
         #print('films')
-        watched_movies = []
-        movies = []
-        session = requests.Session()
 
+        movies = self.search_page(username, 'films')
+
+        return self.concurrent_getDetailsMovie(movies)
+
+    def search_page(self, username, module):
+        movies = []
         count = 0
+
+        session = requests.Session()
+        
         while True:
             count += 1
-
-            watchlist_url = "https://letterboxd.com/{}/films/page/{}/".format(username, count)
+            retries = Retry(total=self.num_max_retries,
+                backoff_factor=0.1,
+                status_forcelist=[ 500, 502, 503, 504 ])
+            session.mount('http://', HTTPAdapter(max_retries=retries))
+            watchlist_url = f"https://letterboxd.com/{username}/{module}/page/{count}/"
             search_page = session.get(watchlist_url)
             search_soup = BeautifulSoup(search_page.content, "html.parser")
             _movies = search_soup.findAll("div", {"class": "film-poster"})
@@ -60,9 +58,7 @@ class letterboxdRadarr:
                     movies.append(_movie)
             else: break
 
-        #print(f'movie_link  => "{movies}"', flush=True)
-        
-        return self.concurrent_getDetailsMovie(movies)
+        return movies
 
     def getDetailsMovie(self, movie):
         imdb_id = ''
