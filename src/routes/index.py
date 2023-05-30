@@ -17,7 +17,12 @@ import os
 
 index = Blueprint("index", __name__)
 
-
+@index.route("/")
+def home():
+    return jsonify({
+                    'watchlist': 'http://IP:PORT/USER/watchlist',
+                    'films': 'http://IP:PORT/USER/films'
+                    })
 
 @index.route("/<user>/watchlist/")
 def watchlist(user=None):
